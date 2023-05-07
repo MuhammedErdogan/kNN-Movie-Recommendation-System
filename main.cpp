@@ -2,10 +2,54 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
 using DistanceFunction = double (*)(const vector<double> &, const vector<double> &);
+
+
+vector<vector<double>> read_dataset(const string &file_path) {
+    vector<vector<double>> dataset;
+    ifstream file(file_path);
+
+    if (!file.is_open()) {
+        cerr << "Error opening the file: " << file_path << endl;
+        return dataset;
+    }
+
+    string line;
+    while (getline(file, line)) {
+        istringstream iss(line);
+        vector<double> row;
+        string temp;
+        double value;
+
+        // Discard the user number and colon
+        getline(iss, temp, ':');
+
+        // Read the opening brace
+        iss >> temp;
+
+        string s = temp.substr(0, 1);
+        cout << s << " ";
+        value = stod(s);
+        row.push_back(value);
+        // Read the values until the closing brace is found
+        while (getline(iss, temp, ',')) {
+            value = stod(temp);
+            row.push_back(value);
+            cout << value << " ";
+        }
+        cout << endl;
+
+        dataset.push_back(row);
+    }
+    cout << "file closed" <<endl;
+    file.close();
+    return dataset;
+}
 
 // Distance functions
 double euclidean_distance(const vector<double> &a, const vector<double> &b) {
@@ -51,12 +95,13 @@ double minkowski_distance_p3(const vector<double> &a, const vector<double> &b) {
 
 // kNN regression function
 double knn_regression(const vector<vector<double>> &dataset, const vector<double> &new_point, int k,
-                      DistanceFunction distance_function) {
+                      DistanceFunction distance_function, int movie_idx) {
     vector<pair<double, int>> distances;
 
     // Compute distances from the new point to all data points in the dataset using the specified distance function
     for (int i = 0; i < dataset.size(); ++i) {
         distances.push_back({distance_function(new_point, dataset[i]), i});
+//        cout << distance_function(new_point, dataset[i]) << ":" << i << endl;
     }
 
     // Sort the distances vector
@@ -66,32 +111,19 @@ double knn_regression(const vector<vector<double>> &dataset, const vector<double
     double sum_ratings = 0.0;
     for (int i = 0; i < k; i++) {
         int user_idx = distances[i].second;
-        sum_ratings += new_point[user_idx];
+        sum_ratings += dataset[user_idx][movie_idx];
     }
 
     return sum_ratings / k;
 }
 
 int main() {
+    // Read dataset from file
+    vector<vector<double>> dataset = read_dataset("dataset.txt");
     // Dataset: Each row represents a user, and each column represents a movie
-    vector<vector<double>> dataset = {
-            {4, 0, 0, 5, 1},
-            {0, 5, 4, 0, 0},
-            {3, 0, 0, 4, 2},
-            {0, 4, 5, 0, 0},
-            {0, 0, 4, 1, 5},
-            {0, 0, 5, 2, 4},
-            {5, 2, 0, 0, 0},
-            {2, 0, 0, 3, 0},
-            {0, 0, 2, 4, 0},
-            {0, 3, 0, 0, 2},
-            {0, 0, 3, 0, 4},
-            {0, 0, 2, 1, 5},
-            {5, 4, 5, 0, 0},
-    };
 
     // New data point to predict rating for movie 1
-    vector<double> new_point = {4, 5, 0, 0};
+    vector<double> new_point = {4, 5, 2, 3, 1, 4, 4, 1, 2, 5, 5, 3, 1};
 
     // Number of nearest neighbors to consider (k)
     int k = 3;
@@ -108,7 +140,7 @@ int main() {
 // Compute the predicted rating for each distance function and store the results in a list
     vector<pair<string, double>> results;
     for (const auto &df: distance_functions) {
-        double predicted_rating = knn_regression(dataset, new_point, k, df.first);
+        double predicted_rating = knn_regression(dataset, new_point, k, df.first, 12);
         results.push_back({df.second, predicted_rating});
     }
 
