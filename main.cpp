@@ -9,6 +9,27 @@ using namespace std;
 
 using DistanceFunction = double (*)(const vector<double> &, const vector<double> &);
 
+void write_dataset_random_user_ratings(const string &file_path, int num_users, int num_movies) {
+    ofstream file(file_path);
+
+    if (!file.is_open()) {
+        cerr << "Error opening the file: " << file_path << endl;
+        return;
+    }
+
+    for (int i = 0; i < num_users; ++i) {
+        file << "user_to_predict" << i << ":";
+        for (int j = 0; j < num_movies; ++j) {
+            file << rand() % 10 + 1;
+            if (j < num_movies - 1) {
+                file << ", ";
+            }
+        }
+        file << "" << endl;
+    }
+
+    file.close();
+}
 
 vector<vector<double>> read_dataset(const string &file_path) {
     vector<vector<double>> dataset;
@@ -20,7 +41,7 @@ vector<vector<double>> read_dataset(const string &file_path) {
     }
 
     string line;
-    while (getline(file, line)) {
+    while (getline(file, line) && !line.empty()) {
         istringstream iss(line);
         vector<double> row;
         string temp;
@@ -33,20 +54,20 @@ vector<vector<double>> read_dataset(const string &file_path) {
         iss >> temp;
 
         string s = temp.substr(0, 1);
-        cout << s << " ";
+//        cout << s << " ";
         value = stod(s);
         row.push_back(value);
+
         // Read the values until the closing brace is found
         while (getline(iss, temp, ',')) {
             value = stod(temp);
             row.push_back(value);
-            cout << value << " ";
+//            cout << value << " ";
         }
-        cout << endl;
-
+//        cout << endl;
         dataset.push_back(row);
     }
-    cout << "file closed" <<endl;
+//    cout << "file closed" << endl;
     file.close();
     return dataset;
 }
@@ -120,10 +141,14 @@ double knn_regression(const vector<vector<double>> &dataset, const vector<double
 int main() {
     // Read dataset from file
     vector<vector<double>> dataset = read_dataset("dataset.txt");
+    vector<vector<double>> user_to_predict = read_dataset("user-to-predict.txt");
     // Dataset: Each row represents a user, and each column represents a movie
-
     // New data point to predict rating for movie 1
-    vector<double> new_point = {4, 5, 2, 3, 1, 4, 4, 1, 2, 5, 5, 3, 1};
+    vector<double> new_point = {4, 7, 2, 10,
+                                1, 4, 4, 1,
+                                2, 5, 9, 3,
+                                3, 4, 3, 2,
+                                1, 6, 4,};
 
     // Number of nearest neighbors to consider (k)
     int k = 3;
@@ -140,7 +165,7 @@ int main() {
 // Compute the predicted rating for each distance function and store the results in a list
     vector<pair<string, double>> results;
     for (const auto &df: distance_functions) {
-        double predicted_rating = knn_regression(dataset, new_point, k, df.first, 12);
+        double predicted_rating = knn_regression(dataset, new_point, k, df.first, 19);
         results.push_back({df.second, predicted_rating});
     }
 
