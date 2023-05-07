@@ -45,5 +45,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "E:/Github Projects/kNN-Movie-Recommendation-System/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "E:/Github Projects/kNN-Movie-Recommendation-System/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

@@ -27,7 +27,7 @@
 					[
 						0
 					],
-					"name" : "KNN",
+					"name" : "kNN-Movie-Recommendation-System",
 					"targetIndexes" : 
 					[
 						0
@@ -38,9 +38,9 @@
 			[
 				{
 					"directoryIndex" : 0,
-					"id" : "KNN::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-KNN-Debug-187b51061e252ade3951.json",
-					"name" : "KNN",
+					"id" : "kNN-Movie-Recommendation-System::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-kNN-Movie-Recommendation-System-Debug-eb2f9138eed40c3f6570.json",
+					"name" : "kNN-Movie-Recommendation-System",
 					"projectIndex" : 0
 				}
 			]
@@ -49,7 +49,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "E:/Github Projects/kNN-Movie-Recommendation-System/cmake-build-debug",
+		"build" : "E:/Github Projects/kNN-Movie-Recommendation-System/build",
 		"source" : "E:/Github Projects/kNN-Movie-Recommendation-System"
 	},
 	"version" : 

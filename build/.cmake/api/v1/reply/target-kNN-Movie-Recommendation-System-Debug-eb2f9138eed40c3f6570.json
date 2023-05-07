@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "KNN.exe"
+			"path" : "kNN-Movie-Recommendation-System.exe"
 		},
 		{
-			"path" : "KNN.pdb"
+			"path" : "kNN-Movie-Recommendation-System.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -59,7 +59,7 @@
 			]
 		}
 	],
-	"id" : "KNN::@6890427a1f51a3e7e1df",
+	"id" : "kNN-Movie-Recommendation-System::@6890427a1f51a3e7e1df",
 	"link" : 
 	{
 		"commandFragments" : 
@@ -79,8 +79,8 @@
 		],
 		"language" : "CXX"
 	},
-	"name" : "KNN",
-	"nameOnDisk" : "KNN.exe",
+	"name" : "kNN-Movie-Recommendation-System",
+	"nameOnDisk" : "kNN-Movie-Recommendation-System.exe",
 	"paths" : 
 	{
 		"build" : ".",
