@@ -144,35 +144,40 @@ int main() {
     vector<vector<double>> user_to_predict = read_dataset("user-to-predict.txt");
     // Dataset: Each row represents a user, and each column represents a movie
     // New data point to predict rating for movie 1
-    vector<double> new_point = {4, 7, 2, 10,
-                                1, 4, 4, 1,
-                                2, 5, 9, 3,
-                                3, 4, 3, 2,
-                                1, 6, 4,};
+    vector<double> new_point;
 
-    // Number of nearest neighbors to consider (k)
-    int k = 3;
+    for (int i = 0; i < user_to_predict.size(); ++i) {
+        new_point = user_to_predict[i];
+        cout << "User " << i << endl;
+        cout << "New point: ";
+        for (const auto &value: new_point) {
+            cout << value << " ";
+        }
+        cout << endl;
+        // Number of nearest neighbors to consider (k)
+        int k = 3;
 
-    // Create a list of distance functions
-    vector<pair<DistanceFunction, string>> distance_functions = {
-            {euclidean_distance,    "Euclidean"},
-            {manhattan_distance,    "Manhattan"},
-            {chebyshev_distance,    "Chebyshev"},
-            {minkowski_distance_p2, "Minkowski (p=2)"},
-            {minkowski_distance_p3, "Minkowski (p=3)"}
-    };
+        // Create a list of distance functions
+        vector<pair<DistanceFunction, string>> distance_functions = {
+                {euclidean_distance,    "Euclidean"},
+                {manhattan_distance,    "Manhattan"},
+                {chebyshev_distance,    "Chebyshev"},
+                {minkowski_distance_p2, "Minkowski (p=2)"},
+                {minkowski_distance_p3, "Minkowski (p=3)"}
+        };
 
-// Compute the predicted rating for each distance function and store the results in a list
-    vector<pair<string, double>> results;
-    for (const auto &df: distance_functions) {
-        double predicted_rating = knn_regression(dataset, new_point, k, df.first, 19);
-        results.push_back({df.second, predicted_rating});
-    }
+        // Compute the predicted rating for each distance function and store the results in a list
+        vector<pair<string, double>> results;
+        for (const auto &df: distance_functions) {
+            double predicted_rating = knn_regression(dataset, new_point, k, df.first, 19);
+            results.push_back({df.second, predicted_rating});
+        }
 
-    // Display the results
-    cout << "Predicted ratings for movie 1 using different distance functions:" << endl;
-    for (const auto &result: results) {
-        cout << result.first << ": " << result.second << endl;
+        // Display the results
+        for (const auto &result: results) {
+            cout << result.first << " distance: " << result.second << endl;
+        }
+        cout << endl;
     }
 
     return 0;

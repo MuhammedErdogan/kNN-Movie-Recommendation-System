@@ -1,0 +1,10 @@
+user_0: 5 
+user_1: 7
+user_2: 4
+user_3: 5
+user_4: 5
+user_5: 5
+user_6: 7
+user_7: 7
+user_8: 5
+user_9: 5
