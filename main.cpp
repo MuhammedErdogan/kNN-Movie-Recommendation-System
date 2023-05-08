@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <map>
+
 using namespace std;
 
 using DistanceFunction = double (*)(const vector<double> &, const vector<double> &);
@@ -151,7 +152,7 @@ string get_most_frequent_method(const map<string, int> &counts) {
     string most_frequent_method;
     int max_count = 0;
 
-    for (const auto &entry : counts) {
+    for (const auto &entry: counts) {
         if (entry.second > max_count) {
             most_frequent_method = entry.first;
             max_count = entry.second;
@@ -168,7 +169,7 @@ int main() {
     vector<vector<double>> real_ratings = read_dataset("user-real-ratings.txt");
     // Dataset: Each row represents a user, and each column represents a movie
     // New data point to predict rating for movie 1
-    vector<string> best_methods;
+    vector<pair<string, double>> best_methods;
     vector<double> new_point;
 
     for (int i = 0; i < user_to_predict.size(); ++i) {
@@ -208,20 +209,23 @@ int main() {
         auto best_method = find_best_distance_method(results, real_rating);
 
         cout << "Best distance method: " << best_method.first.first << " with: " << best_method.second << endl;
-        best_methods.push_back({best_method.first.first});
+        best_methods.push_back({best_method.first.first, best_method.second});
 
-
+        double best_prediction = best_method.first.second;
+        cout << "Best prediction: " << best_prediction << endl;
         cout << endl;
     }
 
     map<string, int> distance_method_counts;
 
-    for (const auto &best_method : best_methods) {
-        increment_distance_method_count(distance_method_counts, best_method);
+    double total_difference = 0;
+    for (const auto &best_method: best_methods) {
+        increment_distance_method_count(distance_method_counts, best_method.first);
+        total_difference += best_method.second;
     }
 
     string most_frequent_method = get_most_frequent_method(distance_method_counts);
     cout << "Most frequent best distance method: " << most_frequent_method << endl;
-    
+    cout << "Average difference: " << total_difference / best_methods.size() << endl;
     return 0;
 }
