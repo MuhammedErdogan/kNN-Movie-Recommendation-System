@@ -4,32 +4,10 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-
+#include <map>
 using namespace std;
 
 using DistanceFunction = double (*)(const vector<double> &, const vector<double> &);
-
-void write_dataset_random_user_ratings(const string &file_path, int num_users, int num_movies) {
-    ofstream file(file_path);
-
-    if (!file.is_open()) {
-        cerr << "Error opening the file: " << file_path << endl;
-        return;
-    }
-
-    for (int i = 0; i < num_users; ++i) {
-        file << "user_to_predict" << i << ":";
-        for (int j = 0; j < num_movies; ++j) {
-            file << rand() % 10 + 1;
-            if (j < num_movies - 1) {
-                file << ", ";
-            }
-        }
-        file << "" << endl;
-    }
-
-    file.close();
-}
 
 vector<vector<double>> read_dataset(const string &file_path) {
     vector<vector<double>> dataset;
@@ -138,12 +116,59 @@ double knn_regression(const vector<vector<double>> &dataset, const vector<double
     return sum_ratings / k;
 }
 
+pair<pair<string, double>, double> find_best_distance_method(
+        vector<pair<string, double>> &results,
+        double real_rating) {
+    vector<pair<DistanceFunction, string>> avg_diff_results;
+
+    pair<pair<string, double>, double> best_method;
+    double min_difference = 1000;
+    for (const auto &df: results) {
+        double total_difference = 0;
+        double predicted_rating = df.second;
+
+        double cur_diff = abs(predicted_rating - real_rating);
+        total_difference += cur_diff;
+
+        if (cur_diff < min_difference) {
+            min_difference = cur_diff;
+            best_method = {{df.first, predicted_rating}, cur_diff};
+        }
+    }
+
+    return best_method;
+}
+
+void increment_distance_method_count(map<string, int> &counts, const string &method_name) {
+    if (counts.find(method_name) == counts.end()) {
+        counts[method_name] = 1;
+    } else {
+        counts[method_name]++;
+    }
+}
+
+string get_most_frequent_method(const map<string, int> &counts) {
+    string most_frequent_method;
+    int max_count = 0;
+
+    for (const auto &entry : counts) {
+        if (entry.second > max_count) {
+            most_frequent_method = entry.first;
+            max_count = entry.second;
+        }
+    }
+
+    return most_frequent_method;
+}
+
 int main() {
     // Read dataset from file
     vector<vector<double>> dataset = read_dataset("dataset.txt");
     vector<vector<double>> user_to_predict = read_dataset("user-to-predict.txt");
+    vector<vector<double>> real_ratings = read_dataset("user-real-ratings.txt");
     // Dataset: Each row represents a user, and each column represents a movie
     // New data point to predict rating for movie 1
+    vector<string> best_methods;
     vector<double> new_point;
 
     for (int i = 0; i < user_to_predict.size(); ++i) {
@@ -169,16 +194,34 @@ int main() {
         // Compute the predicted rating for each distance function and store the results in a list
         vector<pair<string, double>> results;
         for (const auto &df: distance_functions) {
-            double predicted_rating = knn_regression(dataset, new_point, k, df.first, 19);
+            auto predicted_rating = knn_regression(dataset, new_point, k, df.first, 19);
             results.push_back({df.second, predicted_rating});
         }
 
         // Display the results
+        double real_rating = real_ratings[i][0];
         for (const auto &result: results) {
-            cout << result.first << " distance: " << result.second << endl;
+            cout << result.first << " distance: " << result.second
+                 << ", difference: " << abs(result.second - real_rating) << endl;
         }
+
+        auto best_method = find_best_distance_method(results, real_rating);
+
+        cout << "Best distance method: " << best_method.first.first << " with: " << best_method.second << endl;
+        best_methods.push_back({best_method.first.first});
+
+
         cout << endl;
     }
 
+    map<string, int> distance_method_counts;
+
+    for (const auto &best_method : best_methods) {
+        increment_distance_method_count(distance_method_counts, best_method);
+    }
+
+    string most_frequent_method = get_most_frequent_method(distance_method_counts);
+    cout << "Most frequent best distance method: " << most_frequent_method << endl;
+    
     return 0;
 }
